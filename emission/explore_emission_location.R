@@ -38,7 +38,13 @@ csv11sf <-
   sf::st_as_sf(
     coords = c("X", "Y"),
     crs = 5174
-  )
+  ) |>
+  sf::st_transform(5179)
+
+sf::st_write(
+  csv11sf,
+  dsn = file.path("emission_location.gpkg")
+)
 
 # dim(csv11sf)
 # dim(csv11)
