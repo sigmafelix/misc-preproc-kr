@@ -48,15 +48,15 @@ process_single_file <-
     sheet_header <-
       c(
         rep(NA, 5),
-        rep(na.omit(sheet_header[6:(length(sheet_header))]), each = 2)
+        rep(na.omit(sheet_header[6:(length(sheet_header))]))
       )
+
     sheet_data <-
       readxl::read_excel(
         file_path,
         na = "-",
         skip = 3,
-        col_names = TRUE,
-        col_types = ctyp
+        col_names = TRUE
       )
     sheet_data <-
       sheet_data %>%
@@ -70,6 +70,7 @@ process_single_file <-
     # First 5 columns are: ATC코드, ATC코드명, 시도명칭, 시군구명칭, 요양기관종별
     base_cols <- c("ATC코드", "ATC코드명", "시도명칭", "시군구명칭", "요양기관종별")
     time_periods <- stringr::str_replace_all(na.omit(sheet_header), "(년 |월)", "")
+
     # sheet_header <- c(base_cols, na.omit(sheet_header))
     # For the time series data, we have alternating 수량/금액 columns
     data_cols <- c()
@@ -80,6 +81,7 @@ process_single_file <-
         paste0(time_periods[i], "_금액")
       )
     }
+    # return(data_cols)
 
     all_col_names <- c(base_cols, data_cols)
 
@@ -90,19 +92,18 @@ process_single_file <-
         file_path,
         skip = data_start_row + 1,
         col_names = FALSE,
-        na = "-",
-        col_types = ctyp
+        na = "-"
       )
 
     # Set column names (truncate if there are more columns than expected)
     ncol_data <- ncol(actual_data)
     ncol_expected <- length(all_col_names)
 
-    if (ncol_data > ncol_expected) {
-      actual_data <- actual_data[, 1:ncol_expected]
-    } else if (ncol_data < ncol_expected) {
-      all_col_names <- all_col_names[1:ncol_data]
-    }
+    # if (ncol_data > ncol_expected) {
+    #   actual_data <- actual_data[, 1:ncol_expected]
+    # } else if (ncol_data < ncol_expected) {
+    #   all_col_names <- all_col_names[1:ncol_data]
+    # }
 
     # Ensure all column names are valid and not empty
     all_col_names[is.na(all_col_names) | all_col_names == ""] <- paste0("col_", seq_along(all_col_names))[is.na(all_col_names) | all_col_names == ""]
@@ -254,8 +255,29 @@ sng <- process_single_file(
   atc_code = "N06A"
 )
 
+
 # Process all files
 combined_data <- process_multiple_files(file_directory, atc_code = "N06A")
+
+# lookup table
+lookup <- readxl::read_excel(file.path("health", "sigungu_nhis.xlsx"))
+
+# convert
+combined_data_sgg <-
+  combined_data |>
+  dplyr::left_join(
+    lookup[, c(1, 6, 7)],
+    by = c("시도명칭" = "sdnhis", "시군구명칭" = "sggnhis"),
+    relationship = "many-to-many"
+  ) |>
+  dplyr::select(
+    sggcd, region_name, 시군구명칭,
+    ATC코드, ATC코드명, 요양기관종별,
+    year_month,
+    file_type, begin_date, end_date,
+    quantity, total_price
+  ) |>
+  dplyr::arrange(region_name, 시군구명칭, 요양기관종별, year_month)
 
 # export
 nanoparquet::write_parquet(
