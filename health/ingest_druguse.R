@@ -281,6 +281,6 @@ combined_data_sgg <-
 
 # export
 nanoparquet::write_parquet(
-  combined_data,
+  combined_data_sgg,
   file.path(tdir, "drug", "data", "druguse_N06A.parquet")
 )
