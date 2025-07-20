@@ -1,4 +1,4 @@
-## Date: 2025-07-15
+## Date: 2025-07-20
 ## Description: Drug use statistics data processing
 ## Outline: load Excel files, clean data, and export a cleaned data frame
 
@@ -217,7 +217,7 @@ process_multiple_files <-
       file_pattern = "xlsx$",
       atc_code = "N06A") {
     # Get list of files matching the pattern
-    all_files <- list.files(file_directory, pattern = file_pattern, full.names = TRUE)
+    all_files <- list.files(file.path(file_directory, atc_code), pattern = file_pattern, full.names = TRUE)
 
     if (length(all_files) == 0) {
       stop("No files found matching the pattern in the specified directory")
@@ -245,7 +245,7 @@ process_multiple_files <-
 tdir <- unlist(yaml::yaml.load(
   readLines("config.yaml")[1]
 ))
-file_directory <- file.path(tdir, "drug", "data", "N06A")
+file_directory <- file.path(tdir, "drug", "data")
 
 sng <- process_single_file(
   file_path = file.path(
@@ -284,3 +284,55 @@ nanoparquet::write_parquet(
   combined_data_sgg,
   file.path(tdir, "drug", "data", "druguse_N06A.parquet")
 )
+
+
+
+# by ATC4 ####
+atcs <- c("N03A", "N04A", "N04B", "N05A",
+          "N05B", "N05C", "N06A", "N06B", "N07B")
+
+
+# cleaning function
+clean_atc <- function(atc_code) {
+  # Process all files
+  combined_data <- process_multiple_files(file_directory, atc_code = atc_code)
+
+  # lookup table
+  lookup <- readxl::read_excel(file.path("health", "sigungu_nhis.xlsx"))
+
+  # convert
+  combined_data_sgg <-
+    combined_data |>
+    dplyr::left_join(
+      lookup[, c(1, 6, 7)],
+      by = c("시도명칭" = "sdnhis", "시군구명칭" = "sggnhis"),
+      relationship = "many-to-many"
+    ) |>
+    dplyr::select(
+      sggcd, region_name, 시군구명칭,
+      ATC코드, ATC코드명, 요양기관종별,
+      year_month,
+      file_type, begin_date, end_date,
+      quantity, total_price
+    ) |>
+    dplyr::arrange(region_name, 시군구명칭, 요양기관종별, year_month)
+  combined_data_sgg
+}
+
+druguse_atcs <-
+  Map(clean_atc, atcs)
+
+# save the entire list to qs
+qs2::qs_save(
+  druguse_atcs,
+  file = file.path(tdir, "drug", "data", "druguse_atcs.qs")
+)
+
+# Export each ATC code data frame to parquet
+for (atc_code in atcs) {
+  atc_data <- druguse_atcs[[atc_code]]
+  nanoparquet::write_parquet(
+    atc_data,
+    file.path(tdir, "drug", "data", paste0("druguse_", atc_code, ".parquet"))
+  )
+}
