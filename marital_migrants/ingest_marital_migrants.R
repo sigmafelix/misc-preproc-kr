@@ -22,7 +22,13 @@ marital_migrant_df <-
   marital_migrant_data |>
   dplyr::mutate(
     year = as.integer(stringi::stri_extract_first_regex(year, pattern = "\\d{4,4}$")),
-    sggcd = stringi::stri_extract_first_regex(sggcd, pattern = "BVXX\\d{3,5}(|[AB])")
+    # sggcd = stringi::stri_extract_last_regex(sggcd, pattern = "BVXX(\\d{3,5}|\\d{3,5}[A-B])")
+    sggcd = stringi::stri_replace_all_regex(
+      sggcd,
+      pattern = "[가-힣]+",
+      replacement = ""
+    ),
+    sggcd = stringi::stri_replace_all_fixed(sggcd, " ", "")
   ) |>
   dplyr::select(
     year, sggcd, total, male, female
@@ -52,3 +58,6 @@ marital_migrant_df_tdc <-
     type, class1, class2, unit,
     value
   )
+
+marital_migrant_df_tdc |>
+  dplyr::filter(sggcd == "BVXX160A")
