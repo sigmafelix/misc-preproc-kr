@@ -41,3 +41,13 @@ wastewater_df <-
     class2 = ifelse(grepl("gen", variable), "generation", "discharge"),
     unit = ifelse(grepl("m3", variable), "m3_day", "kg_day")
   )
+
+wastewater_df_tdc <-
+  wastewater_df |>
+  dplyr::filter(year %in% c(2010, 2015, 2020)) |>
+  dplyr::select(
+    year, sggcd,
+    type, class1, class2, unit,
+    value
+  )
+

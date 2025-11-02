@@ -44,3 +44,11 @@ marital_migrant_df <-
     unit = "count"
   )
 
+marital_migrant_df_tdc <-
+  marital_migrant_df |>
+  dplyr::filter(year %in% c(2010, 2015, 2020)) |>
+  dplyr::select(
+    year, sggcd,
+    type, class1, class2, unit,
+    value
+  )
