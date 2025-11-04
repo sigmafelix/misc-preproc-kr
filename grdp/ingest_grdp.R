@@ -3,6 +3,11 @@
 ##      some provinces have different column layouts, so manual adjustments were made.
 ## Inflation-adjusted GRDP data are variably available across
 ## provinces. Thus we only ingest the nominal GRDP here.
+# Some provinces required manual code adjustments;
+# for example, Seoul, Daegu (before 2015), Busan, Ulsan
+# did not report SGIS district codes
+# Sejong should be collected at the province level only (2013-).
+
 
 source("load_packages.R")
 
@@ -182,6 +187,10 @@ grdp_df <-
 grdp_df_tdc <-
   grdp_df |>
   dplyr::filter(!is.na(sggcd)) |>
+  dplyr::filter(!is.na(class2)) |>
+  # Some provinces use variable code starting with 15216
+  # and it has no matching 5-digit district code
+  dplyr::filter(sggcd != 15216) |>
   dplyr::filter(year %in% c(2010, 2015, 2020)) |>
   dplyr::select(-name_sector, -variable) |>
   dplyr::relocate(
