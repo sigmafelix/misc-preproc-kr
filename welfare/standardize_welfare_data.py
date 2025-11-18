@@ -105,7 +105,7 @@ registered_pc_df = registered_pc_df.rename(columns={
     '통계연월': 'year_month',
     '통계시도명': 'adm1kr',
     '통계시군구명': 'adm2kr',
-    '연령구간': 'age_group',
+    '연령': 'age_group',
     '성별': 'sex',
     '등록장애인수': 'num_registered_pc'
 })
@@ -115,8 +115,9 @@ registered_pc_severity = parquets[7]
 registered_pc_severity_df = pd.read_parquet(registered_pc_severity)
 # ['통계연월', '통계시도명', '통계시군구명', '연령', '성별', '장애정도', '등록장애인수', 'data_description',
 #        'source_file', '장애등급']
-
-registered_pc_severity = registered_pc_severity.rename(columns={
+# remove 장애등급
+registered_pc_severity_df = registered_pc_severity_df.drop(columns=['장애등급'])
+registered_pc_severity_df = registered_pc_severity_df.rename(columns={
      '통계연월': 'year_month',
      '통계시도명': 'adm1kr',
      '통계시군구명': 'adm2kr',
@@ -153,6 +154,17 @@ welfare_dfs = [
     registered_pc_severity_df,
     single_parent_households_df
 ]
+welfare_df_labels = [
+    "basic_living_security",
+    "basic_living_security_age_sex",
+    "basic_living_security_physical_mental",
+    "basic_pension",
+    "facilities",
+    "child_headed_families",
+    "registered_physically_mentally_challenged",
+    "registered_physically_mentally_challenged_severity",
+    "single_parent_households"
+]
 
 # unnecessary fields to drop
 unnecessary_fields = [
@@ -164,13 +176,13 @@ for df in welfare_dfs:
         if field in df.columns:
             df.drop(columns=[field], inplace=True)
 
-# Save cleaned dataframes back to parquet
-output_dir = "/mnt/s/Korea/welfare/standardized"
-os.makedirs(output_dir, exist_ok=True)
+# # Save cleaned dataframes back to parquet
+# output_dir = "/mnt/s/Korea/welfare/standardized"
+# os.makedirs(output_dir, exist_ok=True)
 
-for i, df in enumerate(welfare_dfs):
-    output_path = os.path.join(output_dir, f"welfare_data_{i+1}.parquet")
-    df.to_parquet(output_path, index=False, engine='pyarrow')
-    print(f"Saved cleaned dataframe {i+1} to {output_path}")
+# for i, df in enumerate(welfare_dfs):
+#     output_path = os.path.join(output_dir, f"welfare_data_{i+1}.parquet")
+#     df.to_parquet(output_path, index=False, engine='pyarrow')
+#     print(f"Saved cleaned dataframe {i+1} to {output_path}")
 
 
