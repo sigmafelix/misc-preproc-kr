@@ -146,8 +146,8 @@ def process_zip_file(zip_path: Path, output_dir: Path) -> None:
                         # Add description column based on CSV filename
                         csv_name = csv_file.stem  # filename without extension
                         english_desc = translate_korean_filename(csv_name)
-                        df['data_description'] = english_desc
-                        df['source_file'] = csv_file.name
+                        # df['data_description'] = english_desc
+                        # df['source_file'] = csv_file.name
                         
                         dataframes.append(df)
                         break
