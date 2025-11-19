@@ -145,3 +145,18 @@ concat_welfare_df.to_parquet(
     os.path.join(basedir, "standardized_filtered_welfare_data.parquet"),
     index=False, engine='pyarrow'
 )
+
+
+# load
+import pandas as pd
+import pickle
+basedir = "/mnt/s/Korea/welfare/cleaned"
+with open(os.path.join(basedir, "standardized_filtered_welfare_dfs.pkl"), 'rb') as f:
+    pivoted_welfare_dfs_r = pickle.load(f)
+
+
+pivoted_welfare_dfs_r[0].to_csv("../tidycensuskr/tools/basic_living_security.csv", encoding = "utf-8")
+pivoted_welfare_dfs_r[2].to_csv("../tidycensuskr/tools/basic_pension.csv", encoding = "utf-8")
+pivoted_welfare_dfs_r[3].to_csv("../tidycensuskr/tools/welfare_facilities.csv", encoding = "utf-8")
+pivoted_welfare_dfs_r[5].to_csv("../tidycensuskr/tools/registered_pm_challenged.csv", encoding = "utf-8")
+pivoted_welfare_dfs_r[6].to_csv("../tidycensuskr/tools/registered_pm_challenged_severity.csv", encoding = "utf-8")
