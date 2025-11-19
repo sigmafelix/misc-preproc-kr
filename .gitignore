@@ -1,2 +1,5 @@
 **/*.csv
 .vscode
+*.parquet
+*.pkl
+*.pickle
