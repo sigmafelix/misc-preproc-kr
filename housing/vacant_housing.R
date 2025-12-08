@@ -20,7 +20,7 @@ vacant_housing <- vacant_housing %>%
   )
 
 sgg_lookup <-
-  read.csv("https://github.com/sigmafelix/tidycensuskr/raw/refs/heads/main/inst/extdata/lookup_district_code.csv",
+  read.csv("../tidycensuskr/inst/extdata/lookup_district_code.csv",
     fileEncoding = "UTF-8")
 
 joinby <- dplyr::join_by(
@@ -65,4 +65,11 @@ vacant_housing_tdc <-
   ) |>
   dplyr::relocate(
     adm1, adm1_code, adm2, adm2_code, year, type, class1, class2, unit, value
+  ) |>
+  # fix sejong-si
+  dplyr::mutate(
+    adm1 = ifelse(is.na(adm1), "Sejong", adm1),
+    adm2 = ifelse(is.na(adm2), "Sejong-si", adm2),
+    adm1_code = ifelse(is.na(adm1_code), 29, adm1_code),
+    adm2_code = ifelse(is.na(adm2_code), 29010, adm2_code)
   )
