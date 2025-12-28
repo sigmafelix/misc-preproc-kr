@@ -1,5 +1,6 @@
 **/*.csv
 .vscode
-*.parquet
+health/*.parquet
+welfare/*.parquet
 *.pkl
 *.pickle
