@@ -25,6 +25,9 @@ This repository contains miscellaneous codes to ingest regional covariates in Ko
 | Housing | Vacant housing statistics | District | 2015-Current (annual) | KOSIS | Manual download |
 | Housing | Housing by dwelling types | District | 2010-Current (annual) | KOSIS | Manual download |
 | Economy | Business statistics | District | 2010-Current (annual) | KOSIS | Manual download |
+| Landuse | Greenspace | District | 2005-Current (annual) | KOSIS (LX) | Manual download |
+| Landuse | Road | District | 2005-Current (annual) | KOSIS (LX) | Manual download |
+| Landuse | Parks | District | 2005-Current (annual) | KOSIS (LX) | Manual download |
 
 [^1]: The data is available at the National Health Insurance System's district level, which matches that of Statistics Korea or the Ministry of the Interior and Safety (MOIS)
 [^2]: The data is available at administrative district level by MOIS
